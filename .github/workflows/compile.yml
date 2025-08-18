@@ -18,6 +18,7 @@ env:
   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
   TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
   TZ: Asia/Shanghai
+  DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
 jobs:
   build:
@@ -116,6 +117,17 @@ jobs:
       continue-on-error: true
       if: steps.compile.outcome == 'success' && env.UPDATE_FIRMWARE_ONLINE == 'true'
       uses: 281677160/common@cloud
+    
+    - name: 上传docker镜像
+      continue-on-error: true
+      if: steps.compile.outcome == 'success' && env.UPLOAD_FIRMWARE == 'true'
+      run: |
+        current_time=`date "+%Y-%m-%d"`
+        echo ${{ env.DOCKERHUB_TOKEN }} | xargs docker login -u ippi --password
+        docker import ${{ env.FIRMWARE_PATH }}/openwrt2-${{ env.TARGET_BOARD }}-${{ env.TARGET_SUBTARGET }}-${{ env.TARGET_PROFILE }}-rootfs.tar.gz ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:$current_time
+        docker push ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:$current_time
+        docker tag ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:$current_time ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:latest
+        docker push ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:latest  
         
     - name: 上传,发布,信息通知
       if: steps.compile.outcome == 'success'
