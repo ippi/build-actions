@@ -125,7 +125,7 @@ jobs:
         current_time=`date "+%Y-%m-%d"`
         echo ${{ env.DOCKERHUB_TOKEN }} | xargs docker login -u ippi --password
         ls -ll ${{ env.FIRMWARE_PATH }}
-        docker import ${{ env.FIRMWARE_PATH }}/openwrt-${{ env.TARGET_BOARD }}-${{ env.TARGET_SUBTARGET }}-${{ env.TARGET_PROFILE }}-rootfs.tar.gz ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:$current_time
+        docker import ${{ env.FIRMWARE_PATH }}/*.tar.gz ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:$current_time
         docker push ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:$current_time
         docker tag ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:$current_time ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:latest
         docker push ippi/${{ env.TARGET_PROFILE }}-lean-openwrt2:latest  
